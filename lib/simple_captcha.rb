@@ -63,7 +63,11 @@ if Rails.env.test?
     undef :simple_captcha_valid?
     def simple_captcha_valid?; SimpleCaptcha.value; end
   end
-  ActiveSupport::TestCase.module_eval do
+  ActiveSupport::TestCase.class_eval do
+    setup do
+      captcha_fail # Fail by default
+    end
+
     def captcha_fail
       SimpleCaptcha.value = false
     end
