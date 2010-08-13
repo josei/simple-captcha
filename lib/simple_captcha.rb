@@ -19,6 +19,10 @@ if Object.const_defined?("Formtastic")
 end
 
 module SimpleCaptcha
+  # Attribute for test environments
+  mattr_accessor :value
+  @@value = false
+
   mattr_accessor :image_size
   @@image_size = "100x28"
   
@@ -47,5 +51,24 @@ module SimpleCaptcha
   
   def self.setup
     yield self
+  end
+end
+
+if Rails.env.test?
+  SimpleCaptcha::ModelHelpers::InstanceMethods.module_eval do
+    undef :is_captcha_valid?
+    def is_captcha_valid?; SimpleCaptcha.value; end
+  end
+  SimpleCaptcha::ControllerHelpers.module_eval do
+    undef :simple_captcha_valid?
+    def simple_captcha_valid?; SimpleCaptcha.value; end
+  end
+  ActiveSupport::TestCase.module_eval do
+    def captcha_fail
+      SimpleCaptcha.value = false
+    end
+    def captcha_success
+      SimpleCaptcha.value = true
+    end
   end
 end
