@@ -13,6 +13,9 @@ module SimpleCaptcha #:nodoc
     #   flash[:notice] = "captcha did not match"
     #   redirect_to :action => "myaction"
     #  end
+    #
+    # If you want, you can use the available around filter for this task:
+    #  around_filter :captcha, :only => [:create, :update, :destroy]
     def simple_captcha_valid?
       if params[:captcha]
         data = SimpleCaptcha::Utils::simple_captcha_value(session[:captcha])
@@ -21,6 +24,15 @@ module SimpleCaptcha #:nodoc
         return result
       else
         return false
+      end
+    end
+        
+    def captcha
+      if simple_captcha_valid?
+        yield
+      else
+        flash[:alert] = I18n.t("activerecord.errors.messages.captcha")
+        redirect_to :back
       end
     end
   end

@@ -57,7 +57,14 @@ end
 if Rails.env.test?
   SimpleCaptcha::ModelHelpers::InstanceMethods.module_eval do
     undef :is_captcha_valid?
-    def is_captcha_valid?; SimpleCaptcha.value; end
+    def is_captcha_valid?
+      if !SimpleCaptcha.value
+        simple_captcha_options[:add_to_base] == true ?
+              self.errors.add_to_base(simple_captcha_options[:message]) :
+              self.errors.add(:captcha, simple_captcha_options[:message])
+      end
+      SimpleCaptcha.value
+    end
   end
   SimpleCaptcha::ControllerHelpers.module_eval do
     undef :simple_captcha_valid?
