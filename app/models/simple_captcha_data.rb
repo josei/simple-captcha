@@ -7,13 +7,13 @@ class SimpleCaptchaData < ActiveRecord::Base
     end
     
     def remove_data(key)
-      delete_all(["key = ?", key])
+      delete_all(["'key' = ?", key])
       clear_old_data(1.hour.ago)
     end
     
     def clear_old_data(time = 1.hour.ago)
       return unless Time === time
-      delete_all(["updated_at < ?", time])
+      delete_all(["'updated_at' < ?", time])
     end
   end
 end
